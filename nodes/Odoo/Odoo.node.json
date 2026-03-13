@@ -1,0 +1,17 @@
+{
+	"node": "n8n-nodes-base.odooToolbox",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Productivity"],
+	"resources": {
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/marcfargas/n8n-nodes-odoo"
+			}
+		]
+	},
+	"alias": ["Odoo", "ERP", "CRM", "Accounting", "Inventory", "Project"],
+	"subcategories": {
+		"Productivity": ["ERP"]
+	}
+}

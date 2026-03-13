@@ -1,0 +1,55 @@
+{
+	"name": "@marcfargas/n8n-nodes-odoo",
+	"version": "0.1.0",
+	"description": "Advanced Odoo node for n8n — schema-aware CRUD, method calls, chatter, properties, and polling triggers. Powered by odoo-toolbox.",
+	"license": "MIT",
+	"homepage": "https://github.com/marcfargas/n8n-nodes-odoo",
+	"keywords": [
+		"n8n-community-node-package",
+		"n8n",
+		"odoo",
+		"erp",
+		"json-rpc"
+	],
+	"author": {
+		"name": "Marc Fargas",
+		"email": "marc@marcfargas.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/marcfargas/n8n-nodes-odoo.git"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"release": "n8n-node release",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/OdooApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/Odoo/Odoo.node.js",
+			"dist/nodes/Odoo/OdooTrigger.node.js"
+		]
+	},
+	"dependencies": {
+		"@marcfargas/odoo-client": "^0.4.2",
+		"@marcfargas/odoo-introspection": "^0.1.3"
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "*",
+		"typescript": "^5.5.0"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
