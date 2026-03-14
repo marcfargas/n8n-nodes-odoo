@@ -51,7 +51,7 @@
 		"@marcfargas/odoo-introspection": "^0.1.4"
 	},
 	"devDependencies": {
-		"@marcfargas/odoo-testcontainers": "^0.1.0",
+		"@marcfargas/odoo-testcontainers": "^0.1.2",
 		"@n8n/node-cli": "*",
 		"@testcontainers/postgresql": "^11.12.0",
 		"@vitest/coverage-v8": "^4.1.0",
