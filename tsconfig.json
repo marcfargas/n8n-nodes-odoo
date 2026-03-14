@@ -17,7 +17,8 @@
 	},
 	"include": [
 		"nodes/**/*.ts",
-		"credentials/**/*.ts"
+		"credentials/**/*.ts",
+		"tests/**/*.ts"
 	],
 	"exclude": [
 		"node_modules",
