@@ -173,9 +173,21 @@ export class Odoo implements INodeType {
 				// ===========================
 				if (resource === 'record') {
 					const model = this.getNodeParameter('model', i) as string;
-					const context = parseContext(
+					const baseContext = parseContext(
 						this.getNodeParameter('context', i, '') as string,
 					);
+
+					// Merge mail options into context for create/update
+					const context =
+						operation === 'create' || operation === 'update'
+							? mergeMailOptions(
+									baseContext,
+									this.getNodeParameter('mailOptions', i, {}) as Record<
+										string,
+										any
+									>,
+								)
+							: baseContext;
 
 					if (operation === 'search') {
 						const domainJson = this.getNodeParameter('domainJson', i, '') as string;
@@ -422,6 +434,34 @@ export class Odoo implements INodeType {
 }
 
 // ---------- helpers ----------
+
+/**
+ * Merge mail.thread context options (checkboxes) into the Odoo context dict.
+ * Only includes keys that are explicitly set to `true`.
+ */
+function mergeMailOptions(
+	context: Record<string, any> | undefined,
+	mailOptions: Record<string, any>,
+): Record<string, any> | undefined {
+	const mailKeys = [
+		'tracking_disable',
+		'mail_notrack',
+		'mail_create_nolog',
+		'mail_create_nosubscribe',
+	];
+	const mailContext: Record<string, any> = {};
+	for (const key of mailKeys) {
+		if (mailOptions[key] === true) {
+			mailContext[key] = true;
+		}
+	}
+
+	if (Object.keys(mailContext).length === 0) {
+		return context;
+	}
+
+	return { ...(context || {}), ...mailContext };
+}
 
 /**
  * Resolve field values from either the UI field picker or raw JSON input.

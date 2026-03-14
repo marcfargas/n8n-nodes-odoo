@@ -252,6 +252,80 @@ describe('Odoo.node execute()', () => {
 				'Values JSON must be a valid JSON object',
 			);
 		});
+
+		it('merges mail options into context', async () => {
+			mockClient.create.mockResolvedValue(50);
+			await executeWith({
+				...baseParams,
+				context: '{"lang": "es_ES"}',
+				mailOptions: {
+					tracking_disable: true,
+					mail_create_nolog: true,
+				},
+			});
+
+			expect(mockClient.create).toHaveBeenCalledWith(
+				'res.partner',
+				{ name: 'New Partner' },
+				{ lang: 'es_ES', tracking_disable: true, mail_create_nolog: true },
+			);
+		});
+
+		it('ignores mail options set to false', async () => {
+			mockClient.create.mockResolvedValue(51);
+			await executeWith({
+				...baseParams,
+				mailOptions: {
+					tracking_disable: false,
+					mail_notrack: false,
+				},
+			});
+
+			expect(mockClient.create).toHaveBeenCalledWith(
+				'res.partner',
+				{ name: 'New Partner' },
+				{},
+			);
+		});
+
+		it('mail options work with empty context', async () => {
+			mockClient.create.mockResolvedValue(52);
+			await executeWith({
+				...baseParams,
+				context: '',
+				mailOptions: { mail_create_nosubscribe: true },
+			});
+
+			expect(mockClient.create).toHaveBeenCalledWith(
+				'res.partner',
+				{ name: 'New Partner' },
+				{ mail_create_nosubscribe: true },
+			);
+		});
+
+		it('mail options work with all four keys', async () => {
+			mockClient.create.mockResolvedValue(53);
+			await executeWith({
+				...baseParams,
+				mailOptions: {
+					tracking_disable: true,
+					mail_notrack: true,
+					mail_create_nolog: true,
+					mail_create_nosubscribe: true,
+				},
+			});
+
+			expect(mockClient.create).toHaveBeenCalledWith(
+				'res.partner',
+				{ name: 'New Partner' },
+				{
+					tracking_disable: true,
+					mail_notrack: true,
+					mail_create_nolog: true,
+					mail_create_nosubscribe: true,
+				},
+			);
+		});
 	});
 
 	// =========================================================================
@@ -293,6 +367,22 @@ describe('Odoo.node execute()', () => {
 				10,
 				{ name: 'Updated' },
 				{ mail_notrack: true },
+			);
+		});
+
+		it('merges mail options into context on update', async () => {
+			mockClient.write.mockResolvedValue(true);
+			await executeWith({
+				...baseParams,
+				context: '{"lang": "ca_ES"}',
+				mailOptions: { tracking_disable: true, mail_notrack: true },
+			});
+
+			expect(mockClient.write).toHaveBeenCalledWith(
+				'res.partner',
+				10,
+				{ name: 'Updated' },
+				{ lang: 'ca_ES', tracking_disable: true, mail_notrack: true },
 			);
 		});
 	});

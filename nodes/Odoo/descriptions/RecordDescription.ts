@@ -275,4 +275,55 @@ export const recordDescription: INodeProperties[] = [
 			},
 		},
 	},
+
+	// ---------- Mail context options (create, update) ----------
+	{
+		displayName: 'Mail Options',
+		name: 'mailOptions',
+		type: 'collection',
+		placeholder: 'Add Option',
+		default: {},
+		description:
+			'Control mail.thread behavior — tracking, notifications, and follower subscriptions. These are merged into the Odoo context alongside any JSON context above.',
+		displayOptions: {
+			show: {
+				resource: ['record'],
+				operation: ['create', 'update'],
+			},
+		},
+		options: [
+			{
+				displayName: 'Disable All Tracking',
+				name: 'tracking_disable',
+				type: 'boolean',
+				default: false,
+				description:
+					'Whether to skip ALL mail.thread features — no tracking messages, no notifications, no followers. Best for bulk imports.',
+			},
+			{
+				displayName: 'No Field Change Messages',
+				name: 'mail_notrack',
+				type: 'boolean',
+				default: false,
+				description:
+					'Whether to skip field change tracking messages but keep other mail.thread features (notifications, followers).',
+			},
+			{
+				displayName: 'No Creation Log (Create Only)',
+				name: 'mail_create_nolog',
+				type: 'boolean',
+				default: false,
+				description:
+					'Whether to suppress the "Record created" log message in chatter. Only applies to Create operations.',
+			},
+			{
+				displayName: 'No Auto-Subscribe Creator (Create Only)',
+				name: 'mail_create_nosubscribe',
+				type: 'boolean',
+				default: false,
+				description:
+					'Whether to prevent the creator from being automatically added as a follower. Only applies to Create operations.',
+			},
+		],
+	},
 ];
