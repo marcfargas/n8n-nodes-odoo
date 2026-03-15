@@ -684,6 +684,126 @@ describe('Odoo.node execute()', () => {
 	});
 
 	// =========================================================================
+	// URL → Get Base URL
+	// =========================================================================
+	describe('URL → Get Base URL', () => {
+		it('returns the Odoo instance base URL', async () => {
+			mockClient.urls.getBaseUrl.mockResolvedValue('https://mycompany.odoo.com');
+
+			const result = await executeWith({ resource: 'url', operation: 'getBaseUrl' });
+
+			expect(mockClient.urls.getBaseUrl).toHaveBeenCalled();
+			expect(result[0][0].json).toEqual({ url: 'https://mycompany.odoo.com' });
+		});
+	});
+
+	// =========================================================================
+	// URL → Get Record URL
+	// =========================================================================
+	describe('URL → Get Record URL', () => {
+		it('calls getRecordUrl and returns the URL', async () => {
+			mockClient.urls.getRecordUrl.mockResolvedValue(
+				'https://mycompany.odoo.com/mail/view?model=crm.lead&res_id=42',
+			);
+
+			const result = await executeWith({
+				resource: 'url',
+				operation: 'getRecordUrl',
+				model: 'crm.lead',
+				recordId: 42,
+			});
+
+			expect(mockClient.urls.getRecordUrl).toHaveBeenCalled();
+			expect(result[0][0].json).toEqual({
+				url: 'https://mycompany.odoo.com/mail/view?model=crm.lead&res_id=42',
+			});
+		});
+
+		it('passes model and record ID to getRecordUrl', async () => {
+			mockClient.urls.getRecordUrl.mockResolvedValue(
+				'https://mycompany.odoo.com/mail/view?model=sale.order&res_id=15',
+			);
+
+			await executeWith({
+				resource: 'url',
+				operation: 'getRecordUrl',
+				model: 'sale.order',
+				recordId: 15,
+			});
+
+			expect(mockClient.urls.getRecordUrl).toHaveBeenCalledWith('sale.order', 15);
+		});
+	});
+
+	// =========================================================================
+	// URL → Get Portal URL
+	// =========================================================================
+	describe('URL → Get Portal URL', () => {
+		it('calls getPortalUrl and returns the result', async () => {
+			mockClient.urls.getPortalUrl.mockResolvedValue({
+				url: 'https://mycompany.odoo.com/my/orders/15?access_token=abc-123',
+				accessUrl: '/my/orders/15',
+				accessToken: 'abc-123',
+			});
+
+			const result = await executeWith({
+				resource: 'url',
+				operation: 'getPortalUrl',
+				model: 'sale.order',
+				recordId: 15,
+			});
+
+			expect(mockClient.urls.getPortalUrl).toHaveBeenCalled();
+			expect(result[0][0].json).toMatchObject({
+				url: expect.stringContaining('/my/orders/15'),
+			});
+		});
+
+		it('passes all portal options to getPortalUrl', async () => {
+			mockClient.urls.getPortalUrl.mockResolvedValue({
+				url: 'https://mycompany.odoo.com/my/invoices/7?access_token=tok&report_type=pdf&download=true',
+				accessUrl: '/my/invoices/7',
+				accessToken: 'tok',
+			});
+
+			await executeWith({
+				resource: 'url',
+				operation: 'getPortalUrl',
+				model: 'account.move',
+				recordId: 7,
+				portalOptions: {
+					reportType: 'pdf',
+					download: true,
+				},
+			});
+
+			expect(mockClient.urls.getPortalUrl).toHaveBeenCalledWith(
+				'account.move',
+				7,
+				expect.objectContaining({ reportType: 'pdf', download: true }),
+			);
+		});
+
+		it('returns the full portal URL result object', async () => {
+			const portalResult = {
+				url: 'https://mycompany.odoo.com/my/orders/42?access_token=full-token-abc',
+				accessUrl: '/my/orders/42',
+				accessToken: 'full-token-abc',
+			};
+			mockClient.urls.getPortalUrl.mockResolvedValue(portalResult);
+
+			const result = await executeWith({
+				resource: 'url',
+				operation: 'getPortalUrl',
+				model: 'sale.order',
+				recordId: 42,
+			});
+
+			expect(result[0][0].json).toEqual(portalResult);
+		});
+	});
+
+	// =========================================================================
 	// Error handling
 	// =========================================================================
 	describe('Error handling', () => {

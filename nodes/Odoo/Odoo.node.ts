@@ -28,6 +28,8 @@ import {
 	propertyDescription,
 	schemaOperations,
 	schemaDescription,
+	urlOperations,
+	urlDescription,
 } from './descriptions';
 
 import {
@@ -91,6 +93,11 @@ export class Odoo implements INodeType {
 						value: 'schema',
 						description: 'Introspect models and fields at runtime',
 					},
+					{
+						name: 'URL',
+						value: 'url',
+						description: 'Generate links to Odoo records (backend, portal)',
+					},
 				],
 				default: 'record',
 			},
@@ -104,6 +111,8 @@ export class Odoo implements INodeType {
 			...propertyDescription,
 			...schemaOperations,
 			...schemaDescription,
+			...urlOperations,
+			...urlDescription,
 		],
 	};
 
@@ -401,6 +410,53 @@ export class Odoo implements INodeType {
 						const model = this.getNodeParameter('model', i) as string;
 						const fields = await introspector.getFields(model);
 						responseData = fields;
+					}
+				}
+
+				// ===========================
+				// URL
+				// ===========================
+				if (resource === 'url') {
+					if (operation === 'getBaseUrl') {
+						const baseUrl = await client.urls.getBaseUrl();
+						responseData = { url: baseUrl };
+					}
+
+					if (operation === 'getRecordUrl') {
+						const model = this.getNodeParameter('model', i) as string;
+						const recordId = this.getNodeParameter('recordId', i) as number;
+						const recordUrl = await client.urls.getRecordUrl(model, recordId);
+						responseData = { url: recordUrl };
+					}
+
+					if (operation === 'getPortalUrl') {
+						const model = this.getNodeParameter('model', i) as string;
+						const recordId = this.getNodeParameter('recordId', i) as number;
+						const portalOptions = this.getNodeParameter(
+							'portalOptions',
+							i,
+							{},
+						) as Record<string, any>;
+
+						const options: Record<string, any> = {};
+						if (portalOptions.suffix) {
+							options.suffix = portalOptions.suffix as string;
+						}
+						if (portalOptions.reportType !== undefined) {
+							options.reportType = portalOptions.reportType as
+								| 'html'
+								| 'pdf'
+								| 'text';
+						}
+						if (portalOptions.download === true) {
+							options.download = true;
+						}
+
+						responseData = await client.urls.getPortalUrl(
+							model,
+							recordId,
+							Object.keys(options).length > 0 ? options : undefined,
+						);
 					}
 				}
 
