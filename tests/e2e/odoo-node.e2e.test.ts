@@ -146,20 +146,13 @@ describe('E2E: Odoo Toolbox Node', () => {
 	}
 
 	function getNodeOutput(execution: any, nodeName: string): any[] {
-		// The REST /rest/workflows/:id/run returns execution result directly
-		// The public API /api/v1/executions/:id returns it nested differently
 		const runData =
 			execution?.data?.resultData?.runData ??
 			execution?.resultData?.runData;
 		if (!runData?.[nodeName]) {
-			// Dump for debugging
-			const keys = Object.keys(runData || {});
-			const execKeys = Object.keys(execution || {});
+			const available = Object.keys(runData || {}).join(', ');
 			throw new Error(
-				`No run data for node "${nodeName}" in execution. ` +
-					`Available nodes: [${keys}]. ` +
-					`Top-level keys: [${execKeys}]. ` +
-					`Raw (first 500): ${JSON.stringify(execution).slice(0, 500)}`,
+				`No run data for node "${nodeName}". Available: [${available}]`,
 			);
 		}
 		const nodeRuns = runData[nodeName];

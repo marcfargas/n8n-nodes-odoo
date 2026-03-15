@@ -278,10 +278,10 @@ export class N8nApi {
 	// --------------- Executions ---------------
 
 	/**
-	 * Get execution details by ID.
+	 * Get execution details by ID, including full data (runData per node).
 	 */
 	async getExecution(id: string): Promise<any> {
-		return this.apiRequest('GET', `/api/v1/executions/${id}`);
+		return this.apiRequest('GET', `/api/v1/executions/${id}?includeData=true`);
 	}
 
 	/**

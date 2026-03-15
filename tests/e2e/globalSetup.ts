@@ -107,6 +107,9 @@ export default async function globalSetup() {
 				N8N_DIAGNOSTICS_ENABLED: 'false',
 				N8N_PERSONALIZATION_ENABLED: 'false',
 				GENERIC_TIMEZONE: 'Europe/Madrid',
+				// Persist full execution data so we can retrieve it via API
+				EXECUTIONS_DATA_SAVE_ON_SUCCESS: 'all',
+				EXECUTIONS_DATA_SAVE_ON_ERROR: 'all',
 			})
 			.withExposedPorts(5678)
 			.withWaitStrategy(
