@@ -30,6 +30,9 @@ describe('E2E: Odoo Toolbox Node', () => {
 		api = new N8nApi(n8nUrl);
 		await api.waitForReady(30_000);
 
+		// n8n requires owner setup → login → API key before public API works
+		await api.initialize();
+
 		credentialId = await api.createOdooCredential('Odoo E2E', {
 			url: odooInternalUrl,
 			db,
@@ -53,6 +56,9 @@ describe('E2E: Odoo Toolbox Node', () => {
 	function buildWorkflow(name: string, params: Record<string, any>) {
 		return {
 			name,
+			settings: {
+				executionOrder: 'v1',
+			},
 			nodes: [
 				{
 					id: 'trigger',
@@ -140,11 +146,20 @@ describe('E2E: Odoo Toolbox Node', () => {
 	}
 
 	function getNodeOutput(execution: any, nodeName: string): any[] {
-		const runData = execution?.data?.resultData?.runData;
+		// The REST /rest/workflows/:id/run returns execution result directly
+		// The public API /api/v1/executions/:id returns it nested differently
+		const runData =
+			execution?.data?.resultData?.runData ??
+			execution?.resultData?.runData;
 		if (!runData?.[nodeName]) {
+			// Dump for debugging
+			const keys = Object.keys(runData || {});
+			const execKeys = Object.keys(execution || {});
 			throw new Error(
 				`No run data for node "${nodeName}" in execution. ` +
-					`Available nodes: ${Object.keys(runData || {}).join(', ')}`,
+					`Available nodes: [${keys}]. ` +
+					`Top-level keys: [${execKeys}]. ` +
+					`Raw (first 500): ${JSON.stringify(execution).slice(0, 500)}`,
 			);
 		}
 		const nodeRuns = runData[nodeName];

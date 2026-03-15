@@ -93,27 +93,26 @@ export default async function globalSetup() {
 		}
 		console.log('✅ Odoo session handler ready');
 
-		// --- n8n (with our node mounted) ---
-		const n8n = await new GenericContainer('n8nio/n8n:latest')
+		// --- n8n (with our node installed via npm — real installation path) ---
+		// Build a custom image that npm-installs our package into n8n,
+		// exactly like a user would install a community node.
+		console.log('🔨 Building n8n image with @marcfargas/n8n-nodes-odoo...');
+		const n8nImage = await GenericContainer
+			.fromDockerfile(projectRoot, 'tests/e2e/Dockerfile.n8n')
+			.build('n8n-odoo-e2e:latest', { deleteOnExit: false });
+
+		const n8n = await n8nImage
 			.withNetwork(network)
 			.withEnvironment({
-				N8N_USER_MANAGEMENT_DISABLED: 'true',
 				N8N_DIAGNOSTICS_ENABLED: 'false',
 				N8N_PERSONALIZATION_ENABLED: 'false',
 				GENERIC_TIMEZONE: 'Europe/Madrid',
 			})
-			.withBindMounts([
-				{
-					source: projectRoot,
-					target: '/home/node/.n8n/nodes/@marcfargas/n8n-nodes-odoo',
-					mode: 'ro',
-				},
-			])
 			.withExposedPorts(5678)
 			.withWaitStrategy(
 				Wait.forHttp('/healthz', 5678)
 					.forStatusCode(200)
-					.withStartupTimeout(60_000),
+					.withStartupTimeout(120_000),
 			)
 			.start();
 

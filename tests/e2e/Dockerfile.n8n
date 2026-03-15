@@ -1,0 +1,23 @@
+# E2E test image: n8n with @marcfargas/n8n-nodes-odoo installed
+# Mirrors the real community node installation path.
+FROM n8nio/n8n:latest
+
+USER root
+
+# Copy the built package into a staging dir
+COPY --chown=node:node dist/ /tmp/n8n-nodes-odoo/dist/
+COPY --chown=node:node package.json /tmp/n8n-nodes-odoo/package.json
+
+# Pack into a tarball, then install with --omit=peer --ignore-scripts
+# n8n provides n8n-workflow globally (peer dep) — we only need our own deps
+# (odoo-client, odoo-introspection). --ignore-scripts avoids rebuilding
+# isolated-vm which requires python/gcc not in the stripped n8n Alpine image.
+RUN mkdir -p /home/node/.n8n/nodes && \
+    chown -R node:node /home/node/.n8n/nodes && \
+    cd /tmp/n8n-nodes-odoo && \
+    npm pack --pack-destination /tmp && \
+    cd /home/node/.n8n/nodes && \
+    su node -c "npm init -y && npm install --omit=peer --ignore-scripts /tmp/marcfargas-n8n-nodes-odoo-*.tgz" && \
+    rm -rf /tmp/n8n-nodes-odoo /tmp/marcfargas-n8n-nodes-odoo-*.tgz
+
+USER node
