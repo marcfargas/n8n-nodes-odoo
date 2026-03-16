@@ -33,7 +33,8 @@
 		"test:e2e": "vitest run --config vitest.e2e.config.ts"
 	},
 	"files": [
-		"dist"
+		"dist/credentials",
+		"dist/nodes"
 	],
 	"n8n": {
 		"n8nNodesApiVersion": 1,
