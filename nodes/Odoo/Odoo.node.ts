@@ -171,7 +171,10 @@ export class Odoo implements INodeType {
 		const resource = this.getNodeParameter('resource', 0) as string;
 		const operation = this.getNodeParameter('operation', 0) as string;
 
+		this.logger.debug(`[odoo-toolbox] execute: resource=${resource} operation=${operation} items=${items.length}`);
+
 		const client = await getClient(this);
+		this.logger.debug(`[odoo-toolbox] client authenticated`);
 
 		for (let i = 0; i < items.length; i++) {
 			try {
@@ -471,10 +474,13 @@ export class Odoo implements INodeType {
 					returnData.push(...executionData);
 				}
 			} catch (error) {
+				const errMsg = (error as Error).message || String(error);
+				this.logger.error(`[odoo-toolbox] ${resource}.${operation} item=${i} failed: ${errMsg}`);
+
 				if (this.continueOnFail()) {
 					const executionData = this.helpers.constructExecutionMetaData(
 						this.helpers.returnJsonArray({
-							error: (error as Error).message,
+							error: errMsg,
 						}),
 						{ itemData: { item: i } },
 					);
