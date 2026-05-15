@@ -48,7 +48,7 @@
 		]
 	},
 	"dependencies": {
-		"@marcfargas/odoo-client": "^0.5.0",
+		"@marcfargas/odoo-client": "^0.6.0",
 		"@marcfargas/odoo-introspection": "^0.1.4"
 	},
 	"devDependencies": {
